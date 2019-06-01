@@ -1,10 +1,8 @@
 import logging
 from os import environ
-
 from telegram_bot import send_message_on_telegram
 
 from telegram.ext import Updater
-from telegram.error import NetworkError, BadRequest
 
 
 class LogsHandler(logging.Handler):
