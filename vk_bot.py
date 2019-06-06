@@ -1,13 +1,13 @@
 import random
-from os import environ
-from dialogflow_handlers import detect_intent_texts
 from custom_logger import get_logger
+from config import Config
+from dialogflow_handlers import detect_intent_texts
 
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 
 
-logger = get_logger('VK logger')
+logger = get_logger('__name__')
 
 
 def send_message_on_vk(event, vk_api, message):
@@ -18,9 +18,9 @@ def send_message_on_vk(event, vk_api, message):
     )
 
 
-def detect_vk_message_by_dialogflow(event, vk_api):
-    dialogflow_project_id = environ['DF_PROJECT_ID']
-    language_code = 'ru'
+def detect_vk_message_by_dialogflow(event):
+    language_code = 'en'
+    dialogflow_project_id = Config.PROJECT_ID
 
     response_from_dialogflow = detect_intent_texts(
         dialogflow_project_id,
@@ -31,24 +31,23 @@ def detect_vk_message_by_dialogflow(event, vk_api):
     return response_from_dialogflow
 
 
-def start_vk_bot(): 
-    logger.info('VK-бот запущен')
-    token = environ['VK_TOKEN']
-    vk_session = vk_api.VkApi(token=token)
+def start_vk_bot():
+    vk_token = Config.VK_TOKEN
+    vk_session = vk_api.VkApi(token=vk_token)
     try:
         vk_session.auth(token_only=True)
     except vk_api.AuthError as error:
         logger.info(f'Бот упал с ошибкой {error}.')
-        logger.warning(error, exc_info=True)
-
+        logger.error(error, exc_info=True)
 
     longpoll = VkLongPoll(vk_session)
     vk = vk_session.get_api()
+    logger.info('VK-бот запущен.')
 
     for event in longpoll.listen():
         if event.type == VkEventType.MESSAGE_NEW and event.to_me:  
-            response_from_dialogflow = detect_vk_message_by_dialogflow(event, vk)
-            if str(response_from_dialogflow.query_result.action) == 'input.unknown':
+            response_from_dialogflow = detect_vk_message_by_dialogflow(event)
+            if str(response_from_dialogflow.query_result.intent.display_name) == 'Default Fallback Intent':
                 continue
             send_message_on_vk(
                 event,

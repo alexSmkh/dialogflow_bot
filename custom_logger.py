@@ -1,24 +1,30 @@
 import logging
-from os import environ
-from telegram_bot import send_message_on_telegram
-
+from config import Config
 from telegram.ext import Updater
 
 
 class LogsHandler(logging.Handler):
     def __init__(self):
         super().__init__()
-        telegram_token = environ['TELEGRAM_TOKEN']
-        self.updater = Updater(token=telegram_token)
 
     def emit(self, record):
         log_entry = self.format(record)
-        user_id = environ['DEVELOPER_ID']
-        send_message_on_telegram(self.updater, user_id, str(log_entry))
+        send_report(str(log_entry))
+
+
+def send_report(report):
+    telegram_token = Config.TELEGRAM_TOKEN
+    updater = Updater(token=telegram_token)
+    user_id = Config.DEVELOPER_ID
+    updater.bot.send_message(user_id, report)
 
 
 def get_logger(logger_name):
     logger = logging.getLogger(logger_name)
     logger.setLevel(logging.INFO)
-    logger.addHandler(LogsHandler())
+    handler = LogsHandler()
+    handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(name)s ~ %(levelname)s ~ %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
     return logger

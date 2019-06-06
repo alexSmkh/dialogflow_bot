@@ -1,32 +1,24 @@
 import json
 from json import JSONDecodeError
-from os import environ
-from os import getcwd
-from os.path import join
-from custom_logger import get_logger
+from config import Config
 
+from custom_logger import get_logger
 import dialogflow_v2 as dialogflow
 from google.auth.exceptions import GoogleAuthError
 from google.api_core.exceptions import GoogleAPIError
 
 
-environ["GOOGLE_APPLICATION_CREDENTIALS"] = join(
-        getcwd(),
-        environ['CREDENTIALS_FILE_NAME']
-)
+logger = get_logger(__name__)
 
 
-logger = get_logger('Training phrases logger')
-
-
-def load_intents_data():
+def load_questions_and_answers():
     try:
         with open('questions.json', 'r') as data:
-            intents_data = json.load(data)
+            questions_and_answers = json.load(data)
     except (FileNotFoundError, JSONDecodeError) as error:
         logger.info(f'Бот упал с ошибкой {error}')
-        logger.warning(error, exc_info=True)
-    return intents_data
+        logger.error(error, exc_info=True)
+    return questions_and_answers
 
 
 def create_intent(project_id, display_name, training_phrases_parts, message_texts):
@@ -46,26 +38,25 @@ def create_intent(project_id, display_name, training_phrases_parts, message_text
         intent = dialogflow.types.Intent(
             display_name=display_name,
             training_phrases=training_phrases,
-            messages=[message])
-
+            messages=[message]
+        )
         response = intents_client.create_intent(parent, intent)
         return response
     except (GoogleAuthError, GoogleAPIError) as error:
         logger.info(f'Бот упал с ошибкой {error}.')
-        logger.warning(error, exc_info=True)
+        logger.error(error, exc_info=True)
 
 
 def start_training():
-    project_id = environ['DF_PROJECT_ID']
-    
-    intents_data = load_intents_data()
+    project_id = Config.PROJECT_ID
+    questions_and_answers = load_questions_and_answers()
 
-    for intent_name in intents_data:
+    for intent_name in questions_and_answers:
         create_intent(
             project_id,
             intent_name,
-            intents_data[intent_name]['questions'],
-            intents_data[intent_name]['answer'] 
+            questions_and_answers[intent_name]['questions'],
+            questions_and_answers[intent_name]['answer']
         )
 
 
