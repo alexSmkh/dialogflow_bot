@@ -52,11 +52,12 @@ def start_training():
     questions_and_answers = load_questions_and_answers()
 
     for intent_name in questions_and_answers:
+        questions, answers = questions_and_answers[intent_name]
         create_intent(
             project_id,
             intent_name,
-            questions_and_answers[intent_name]['questions'],
-            questions_and_answers[intent_name]['answer']
+            questions_and_answers[intent_name][questions],
+            questions_and_answers[intent_name][answers]
         )
 
 
