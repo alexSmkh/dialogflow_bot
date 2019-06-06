@@ -11,5 +11,6 @@ class Config:
         VK_TOKEN = getenv('VK_TOKEN')
         DEVELOPER_ID = getenv('DEVELOPER_ID')
         PROJECT_ID = getenv('PROJECT_ID')
+        TRAINING_FILE_NAME = getenv('TRAINING_FILE_NAME')
     except KeyError as error:
         logger.error('Не найдена переменная окружения.', exc_info=True)

@@ -13,7 +13,7 @@ logger = get_logger(__name__)
 
 def load_questions_and_answers():
     try:
-        with open('questions.json', 'r') as data:
+        with open(Config.TRAINING_FILE_NAME, 'r') as data:
             questions_and_answers = json.load(data)
     except (FileNotFoundError, JSONDecodeError) as error:
         logger.info(f'Бот упал с ошибкой {error}')
