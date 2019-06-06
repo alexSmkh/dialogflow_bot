@@ -32,16 +32,14 @@ def detect_vk_message_by_dialogflow(event):
 
 
 def start_vk_bot():
-    vk_token = Config.VK_TOKEN
-    vk_session = vk_api.VkApi(token=vk_token)
     try:
-        vk_session.auth(token_only=True)
-    except vk_api.AuthError as error:
+        vk_session = vk_api.VkApi(token=Config.VK_TOKEN)
+        longpoll = VkLongPoll(vk_session)
+        vk = vk_session.get_api()
+    except vk_api.VkApiError as error:
         logger.info(f'Бот упал с ошибкой {error}.')
         logger.error(error, exc_info=True)
 
-    longpoll = VkLongPoll(vk_session)
-    vk = vk_session.get_api()
     logger.info('VK-бот запущен.')
 
     for event in longpoll.listen():
