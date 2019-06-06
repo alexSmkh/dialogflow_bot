@@ -7,7 +7,7 @@ import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 
 
-logger = get_logger(__name__)
+logger = get_logger('VK-logger')
 
 
 def send_message_on_vk(event, vk_api, message):

@@ -8,7 +8,7 @@ from telegram.ext import MessageHandler, Filters
 from telegram.error import BadRequest, NetworkError
 
 
-logger = get_logger(__name__)
+logger = get_logger('Telegram logger')
 
 
 def send_message_on_telegram(bot, chat_id, message):
