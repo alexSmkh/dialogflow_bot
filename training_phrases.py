@@ -1,6 +1,6 @@
 import json
 from json import JSONDecodeError
-from os import getenv
+from os import getenv, path, getcwd
 
 from custom_logger import get_logger
 
@@ -14,13 +14,12 @@ logger = get_logger(__name__)
 
 
 def load_questions_and_answers():
-    try:
-        with open(getenv('TRAINING_FILE_NAME'), 'r') as data:
-            questions_and_answers = json.load(data)
-    except (FileNotFoundError, JSONDecodeError) as error:
-        logger.info(f'Бот упал с ошибкой {error}')
-        logger.error(error, exc_info=True)
-    return questions_and_answers
+    if path.exists(path.join(getcwd(), getenv('TRAINING_FILE_NAME'))):
+        try:
+            with open(getenv('TRAINING_FILE_NAME'), 'r') as data:
+                return json.load(data)
+        except JSONDecodeError:
+            logger.exception('Ошибка при декодировании файла.')
 
 
 def create_intent(project_id, display_name, training_phrases_parts, message_texts):
@@ -45,12 +44,14 @@ def create_intent(project_id, display_name, training_phrases_parts, message_text
         response = intents_client.create_intent(parent, intent)
         return response
     except (GoogleAuthError, GoogleAPIError):
-        logger.exception('Произошла ошибка при создании интента в Dialogflow.')
+        logger.exception('Ошибка при создании интента в Dialogflow.')
 
 
 def start_training():
     project_id = getenv('PROJECT_ID')
     questions_and_answers = load_questions_and_answers()
+    if questions_and_answers is None:
+        raise('.')
 
     for intent_name in questions_and_answers:
         questions, answers = questions_and_answers[intent_name]
