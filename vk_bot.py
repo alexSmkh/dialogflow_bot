@@ -44,7 +44,7 @@ def start_vk_bot():
             response_from_dialogflow = detect_vk_message_by_dialogflow(event)
             if response_from_dialogflow is None:
                 continue
-            if str(response_from_dialogflow.query_result.intent.display_name) == 'Default Fallback Intent':
+            if str(response_from_dialogflow.query_result.action) == 'input.unknown':
                 continue
             send_message_on_vk(
                 event,
