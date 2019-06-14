@@ -1,8 +1,9 @@
 import random
+from os import getenv
 from custom_logger import get_logger
-from config import Config
 from dialogflow_handlers import detect_intent_texts
 
+from dotenv import load_dotenv
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 
@@ -20,7 +21,7 @@ def send_message_on_vk(event, vk_api, message):
 
 def detect_vk_message_by_dialogflow(event):
     language_code = 'en'
-    dialogflow_project_id = Config.PROJECT_ID
+    dialogflow_project_id = getenv('PROJECT_ID')
 
     response_from_dialogflow = detect_intent_texts(
         dialogflow_project_id,
@@ -32,7 +33,7 @@ def detect_vk_message_by_dialogflow(event):
 
 
 def start_vk_bot():
-    vk_session = vk_api.VkApi(token=Config.VK_TOKEN)
+    vk_session = vk_api.VkApi(token=getenv('VK_TOKEN'))
     longpoll = VkLongPoll(vk_session)
     vk = vk_session.get_api()
 
@@ -53,4 +54,5 @@ def start_vk_bot():
         
         
 if __name__ == '__main__':
+    load_dotenv()
     start_vk_bot()

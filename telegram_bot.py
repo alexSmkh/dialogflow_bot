@@ -1,7 +1,9 @@
-from custom_logger import Config
+from os import getenv
+
 from dialogflow_handlers import detect_intent_texts
 from custom_logger import get_logger
 
+from dotenv import load_dotenv
 from telegram.ext import Updater
 from telegram.ext import CommandHandler 
 from telegram.ext import MessageHandler, Filters
@@ -30,7 +32,7 @@ def start(bot, update):
 
 
 def detect_telegram_message_by_dialogflow(bot, update):
-    dialogflow_project_id = Config.PROJECT_ID
+    dialogflow_project_id = getenv('PROJECT_ID')
     language_code = 'en'
     
     response_from_dialogflow = detect_intent_texts(
@@ -48,7 +50,7 @@ def detect_telegram_message_by_dialogflow(bot, update):
 
 
 def start_telegram_bot():
-    tlgrm_token = Config.TELEGRAM_TOKEN
+    tlgrm_token = getenv('TELEGRAM_TOKEN')
     updater = Updater(token=tlgrm_token)
     dispatcher = updater.dispatcher
     start_hundler = CommandHandler('start', start)
@@ -61,4 +63,5 @@ def start_telegram_bot():
 
 
 if __name__ == '__main__':
+    load_dotenv()
     start_telegram_bot()

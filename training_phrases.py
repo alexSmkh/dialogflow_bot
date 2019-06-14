@@ -1,8 +1,10 @@
 import json
 from json import JSONDecodeError
-from config import Config
+from os import getenv
 
 from custom_logger import get_logger
+
+from dotenv import load_dotenv
 import dialogflow_v2 as dialogflow
 from google.auth.exceptions import GoogleAuthError
 from google.api_core.exceptions import GoogleAPIError
@@ -13,7 +15,7 @@ logger = get_logger(__name__)
 
 def load_questions_and_answers():
     try:
-        with open(Config.TRAINING_FILE_NAME, 'r') as data:
+        with open(getenv('TRAINING_FILE_NAME'), 'r') as data:
             questions_and_answers = json.load(data)
     except (FileNotFoundError, JSONDecodeError) as error:
         logger.info(f'Бот упал с ошибкой {error}')
@@ -47,7 +49,7 @@ def create_intent(project_id, display_name, training_phrases_parts, message_text
 
 
 def start_training():
-    project_id = Config.PROJECT_ID
+    project_id = getenv('PROJECT_ID')
     questions_and_answers = load_questions_and_answers()
 
     for intent_name in questions_and_answers:
@@ -61,4 +63,5 @@ def start_training():
 
 
 if __name__ == '__main__':
+    load_dotenv()
     start_training()
