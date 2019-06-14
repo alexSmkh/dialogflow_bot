@@ -17,9 +17,8 @@ def send_message_on_telegram(bot, chat_id, message):
             chat_id=chat_id,
             text=message
         )
-    except (BadRequest, NetworkError) as error:
-        logger.info(f'Бот упал с ошибкой {error}')
-        logger.error(error, exc_info=True)
+    except (BadRequest, NetworkError):
+        logger.exception(f'Ошибка при отправке сообщения в Telegram.')
 
 
 def start(bot, update):
@@ -40,31 +39,25 @@ def detect_telegram_message_by_dialogflow(bot, update):
         update.message.text,
         language_code
     )
-    
-    send_message_on_telegram(
-        bot,
-        update.message.chat_id,
-        str(response_from_dialogflow.query_result.fulfillment_text)
-    )
+    if response_from_dialogflow is not None:
+        send_message_on_telegram(
+            bot,
+            update.message.chat_id,
+            str(response_from_dialogflow.query_result.fulfillment_text)
+        )
 
 
 def start_telegram_bot():
     tlgrm_token = Config.TELEGRAM_TOKEN
-    try:
-        updater = Updater(token=tlgrm_token)
-        dispatcher = updater.dispatcher
+    updater = Updater(token=tlgrm_token)
+    dispatcher = updater.dispatcher
+    start_hundler = CommandHandler('start', start)
+    dialogflow_handler = MessageHandler(Filters.text,   detect_telegram_message_by_dialogflow)
 
-        start_hundler = CommandHandler('start', start)
-        dialogflow_handler = MessageHandler(Filters.text,   detect_telegram_message_by_dialogflow)
-
-        dispatcher.add_handler(start_hundler)
-        dispatcher.add_handler(dialogflow_handler)
-        updater.start_polling()
-        logger.info('Telegram-bot запущен.')
-
-    except (BadRequest, NetworkError) as error:
-        logger.info(f'Бот упал с ошибкой {error}')
-        logger.error(error, exc_info=True)
+    dispatcher.add_handler(start_hundler)
+    dispatcher.add_handler(dialogflow_handler)
+    updater.start_polling()
+    logger.info('Telegram-bot запущен.')
 
 
 if __name__ == '__main__':

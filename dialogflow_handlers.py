@@ -19,5 +19,4 @@ def detect_intent_texts(project_id, session_id, text, language_code):
             session=session, query_input=query_input)
         return response
     except (GoogleAuthError, GoogleAPIError)  as error:
-        logger.info(f'Бот упал с ошибкой {error}.')
-        logger.error(error, exc_info=True)
+        logger.exception('Произошла ошибка при работе с сервисом Dialogflow.')

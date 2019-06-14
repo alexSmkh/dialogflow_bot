@@ -32,19 +32,17 @@ def detect_vk_message_by_dialogflow(event):
 
 
 def start_vk_bot():
-    try:
-        vk_session = vk_api.VkApi(token=Config.VK_TOKEN)
-        longpoll = VkLongPoll(vk_session)
-        vk = vk_session.get_api()
-    except vk_api.VkApiError as error:
-        logger.info(f'Бот упал с ошибкой {error}.')
-        logger.error(error, exc_info=True)
+    vk_session = vk_api.VkApi(token=Config.VK_TOKEN)
+    longpoll = VkLongPoll(vk_session)
+    vk = vk_session.get_api()
 
     logger.info('VK-бот запущен.')
 
     for event in longpoll.listen():
         if event.type == VkEventType.MESSAGE_NEW and event.to_me:  
             response_from_dialogflow = detect_vk_message_by_dialogflow(event)
+            if response_from_dialogflow is None:
+                continue
             if str(response_from_dialogflow.query_result.intent.display_name) == 'Default Fallback Intent':
                 continue
             send_message_on_vk(

@@ -29,10 +29,10 @@ def create_intent(project_id, display_name, training_phrases_parts, message_text
         for training_phrases_part in training_phrases_parts:
             part = dialogflow.types.Intent.TrainingPhrase.Part(
                 text=training_phrases_part)
-            training_phrase = dialogflow.types.Intent.TrainingPhrase    (parts=[part])
+            training_phrase = dialogflow.types.Intent.TrainingPhrase(parts=[part])
             training_phrases.append(training_phrase)
 
-        text = dialogflow.types.Intent.Message.Text(text=   [message_texts])
+        text = dialogflow.types.Intent.Message.Text(text=[message_texts])
         message = dialogflow.types.Intent.Message(text=text)
 
         intent = dialogflow.types.Intent(
@@ -42,9 +42,8 @@ def create_intent(project_id, display_name, training_phrases_parts, message_text
         )
         response = intents_client.create_intent(parent, intent)
         return response
-    except (GoogleAuthError, GoogleAPIError) as error:
-        logger.info(f'Бот упал с ошибкой {error}.')
-        logger.error(error, exc_info=True)
+    except (GoogleAuthError, GoogleAPIError):
+        logger.exception('Произошла ошибка при создании интента в Dialogflow.')
 
 
 def start_training():
