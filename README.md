@@ -66,10 +66,15 @@ TRAINING_FILE_NAME=<training filename>
 ### Как запустить
 
 Авторизоваться в Google
+* для Linux
+
 ```bash
 export GOOGLE_APPLICATION_CREDENTIALS='path_to_google_credentials_file.json'
 ```
-
+* для Windows
+```bash
+set GOOGLE_APPLICATION_CREDENTIALS=path_to_file
+```
 Запустите тренировку бота, если он еще не обучен
 ```bash
 python3 training_phrases.py
