@@ -1,8 +1,7 @@
 import json
+import logging
 from json import JSONDecodeError
 from os import getenv, path, getcwd
-
-from custom_logger import get_logger
 
 from dotenv import load_dotenv
 import dialogflow_v2 as dialogflow
@@ -10,16 +9,17 @@ from google.auth.exceptions import GoogleAuthError
 from google.api_core.exceptions import GoogleAPIError
 
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def load_questions_and_answers():
-    if path.exists(path.join(getcwd(), getenv('TRAINING_FILE_NAME'))):
-        try:
-            with open(getenv('TRAINING_FILE_NAME'), 'r') as data:
-                return json.load(data)
-        except JSONDecodeError:
-            logger.exception('Ошибка при декодировании файла.')
+    if not path.exists(path.join(getcwd(), getenv('TRAINING_FILE_NAME'))):
+        return None
+    try:
+        with open(getenv('TRAINING_FILE_NAME'), 'r') as data:
+            return json.load(data)
+    except JSONDecodeError:
+        logger.exception('Ошибка при декодировании файла.')
 
 
 def create_intent(project_id, display_name, training_phrases_parts, message_texts):
@@ -51,7 +51,7 @@ def start_training():
     project_id = getenv('PROJECT_ID')
     questions_and_answers = load_questions_and_answers()
     if questions_and_answers is None:
-        raise('.')
+        return None
 
     for intent_name in questions_and_answers:
         questions, answers = questions_and_answers[intent_name]
@@ -65,4 +65,5 @@ def start_training():
 
 if __name__ == '__main__':
     load_dotenv()
+    logging.basicConfig(format='%(levelname)s:%(name)s:%(message)s')
     start_training()

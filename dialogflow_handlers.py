@@ -1,10 +1,14 @@
-from custom_logger import get_logger
+import logging
+
+from custom_logger import LogsHandler
+
 import dialogflow_v2 as dialogflow
 from google.auth.exceptions import GoogleAuthError
 from google.api_core.exceptions import GoogleAPIError
 
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
+logger.addHandler(LogsHandler())
 
 
 def detect_intent_texts(project_id, session_id, text, language_code):
@@ -18,5 +22,5 @@ def detect_intent_texts(project_id, session_id, text, language_code):
         response = session_client.detect_intent(
             session=session, query_input=query_input)
         return response
-    except (GoogleAuthError, GoogleAPIError)  as error:
+    except (GoogleAuthError, GoogleAPIError):
         logger.exception('Произошла ошибка при работе с сервисом Dialogflow.')

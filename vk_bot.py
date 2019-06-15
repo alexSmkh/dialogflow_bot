@@ -1,6 +1,7 @@
 import random
+import logging
 from os import getenv
-from custom_logger import get_logger
+from custom_logger import LogsHandler
 from dialogflow_handlers import detect_intent_texts
 
 from dotenv import load_dotenv
@@ -8,7 +9,7 @@ import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 
 
-logger = get_logger('VK-logger')
+logger = logging.getLogger('VK logger')
 
 
 def send_message_on_vk(event, vk_api, message):
@@ -55,4 +56,9 @@ def start_vk_bot():
         
 if __name__ == '__main__':
     load_dotenv()
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(levelname)s:%(name)s:%(message)s'
+    )
+    logger.addHandler(LogsHandler())
     start_vk_bot()

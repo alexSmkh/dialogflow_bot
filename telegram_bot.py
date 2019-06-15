@@ -1,7 +1,8 @@
+import logging
 from os import getenv
 
 from dialogflow_handlers import detect_intent_texts
-from custom_logger import get_logger
+from custom_logger import LogsHandler
 
 from dotenv import load_dotenv
 from telegram.ext import Updater
@@ -10,7 +11,7 @@ from telegram.ext import MessageHandler, Filters
 from telegram.error import BadRequest, NetworkError
 
 
-logger = get_logger('Telegram logger')
+logger = logging.getLogger('Telegram logger')
 
 
 def send_message_on_telegram(bot, chat_id, message):
@@ -20,7 +21,7 @@ def send_message_on_telegram(bot, chat_id, message):
             text=message
         )
     except (BadRequest, NetworkError):
-        logger.exception(f'Ошибка при отправке сообщения в Telegram.')
+        logger.exception('Ошибка при отправке сообщения в Telegram.')
 
 
 def start(bot, update):
@@ -64,4 +65,9 @@ def start_telegram_bot():
 
 if __name__ == '__main__':
     load_dotenv()
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(levelname)s:%(name)s:%(message)s'
+    )
+    logger.addHandler(LogsHandler())
     start_telegram_bot()
